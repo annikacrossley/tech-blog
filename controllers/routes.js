@@ -25,12 +25,11 @@ router.get('/', async (req, res) => {
 router.get('/post/:id', async (req, res) => {
     try {
         const postData = await Post.findOne({where: req.params.id}, 
-            include: [
+            {include:
                 {
                     moder: User,
                     attributes: ['name'],
-                },
-            ],
+                }},
         );
 
         const post = postData.get({ plain: true });
@@ -50,7 +49,7 @@ router.get('/post/:id', async (req, res) => {
 router.get('/profile', withAuth, async (req, res) => {
     try {
         //find logged in user w/ session ID
-        const userData = await User.findByPk(req.session.user_id, {
+        const userData = await User.findOne(req.session.user_id, {
             attributes: { exclude: ['password'] },
             include: [{ model: Post }],
         });

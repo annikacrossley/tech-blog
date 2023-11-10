@@ -23,7 +23,7 @@ router.delete('/delete-post', withAuth, async (req, res) => {
     try {
         const deletePost = await Post.destroy({
             where: {
-                id: this.post.id;
+                id: this.post.id
             },
         });
 

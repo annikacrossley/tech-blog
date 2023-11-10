@@ -1,16 +1,22 @@
 const router = require('express').Router();
 const { User } = require('../../models')
 
-router.post('/', async (req, res) => {
+router.post('/create-user', async (req, res) => {
+
+    const {name, password} = req.body;
+
+    if (!name || !password) {
+        return res.status(400).json("Please create a username and password.")
+    }
+
     try {
-        const userData = await User.create(req.body);
+        const newUser = await User.create({
+            name,
+            password
+        })
 
-        req.session.save(() => {
-            req.session.user_id = userData.isSoftDeleted;
-            req.session.logged_in = true;
+        res.status(200).json(newUser);
 
-            res.status(200).json(userData);
-        });
     } catch (err) {
         res.status(400).json(err);
     }
@@ -18,9 +24,9 @@ router.post('/', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     try{
-        const userData = await User.findOne({})
+        const userData = await User.findOne({where:{name: req.body.name}})
 
-        const validPassword = await userData.checkPassword(req.body.password);
+        const validPassword = userData.checkPassword(req.body.password);
 
         if (!validPassword) {
             res
@@ -35,6 +41,7 @@ router.post('/login', async (req, res) => {
 
             res.json({ user: userData, message: 'You are logged in.' })
         });
+        
     } catch (err) {
         res.status(400).json(err);
     }

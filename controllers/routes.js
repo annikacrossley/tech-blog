@@ -6,12 +6,7 @@ router.get('/', async (req, res) => {
     try {
         //get all posts and join w/ user
         const postData = await Post.findAll({
-            include: [
-                {
-                    model: User,
-                    attributes: ['name'],
-                },
-            ],
+            include: User,
         });
 
         //serialize for template
@@ -29,21 +24,22 @@ router.get('/', async (req, res) => {
 
 router.get('/post/:id', async (req, res) => {
     try {
-        const postData = await Post.findByPk(req.params.id, {
+        const postData = await Post.findOne({where: req.params.id}, 
             include: [
                 {
                     moder: User,
                     attributes: ['name'],
                 },
             ],
-        });
+        );
 
         const post = postData.get({ plain: true });
 
         res.render('post', {
-            ...post,
+            post,
             logged_in: req.session.logged_in
         });
+        
     } catch (err) {
         res.status(500).json(err);
     }
